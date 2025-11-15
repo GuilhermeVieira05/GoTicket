@@ -1,0 +1,96 @@
+@startuml GoTicketDiagram
+
+skinparam rectangle<<behavior>> {
+	roundCorner 25
+}
+skinparam linetype ortho
+
+sprite $bProcess jar:archimate/business-process
+sprite $aService jar:archimate/application-service
+sprite $aComponent jar:archimate/application-component
+
+' -----------------------------
+' Processos de Negócio 
+' -----------------------------
+rectangle "Venda de Ingressos" as L1_Venda <<$bProcess>><<behavior>> #Business
+rectangle "Gerenciamento de Eventos" as L1_GerenciaEvento <<$bProcess>><<behavior>> #Business
+rectangle "Validação de Ingressos (Check-in)" as L1_Checkin <<$bProcess>><<behavior>> #Business
+rectangle "Moderação da Plataforma" as L1_Moderacao <<$bProcess>><<behavior>> #Business
+
+L1_Venda -[hidden]right- L1_GerenciaEvento
+L1_GerenciaEvento -[hidden]right- L1_Checkin
+L1_Checkin -[hidden]right- L1_Moderacao
+
+
+' -----------------------------
+' Serviços de Aplicação 
+' -----------------------------
+rectangle "Serviço de Autenticação" as L2_AuthSvc <<$aService>><<behavior>> #Application
+rectangle "Serviço de Compra e Pagamento" as L2_PaymentSvc <<$aService>><<behavior>> #Application
+rectangle "Serviço de Gestão de Eventos" as L2_EventSvc <<$aService>><<behavior>> #Application
+rectangle "Serviço de Validação (Check-in)" as L2_CheckinSvc <<$aService>><<behavior>> #Application
+rectangle "Serviço de Notificação" as L2_NotifySvc <<$aService>><<behavior>> #Application
+
+L2_AuthSvc -[hidden]right- L2_PaymentSvc
+L2_PaymentSvc -[hidden]right- L2_EventSvc
+L2_EventSvc -[hidden]right- L2_CheckinSvc
+L2_CheckinSvc -[hidden]right- L2_NotifySvc
+
+L2_PaymentSvc -up-> L1_Venda
+L2_AuthSvc -up-> L1_Venda
+L2_AuthSvc -up-> L1_GerenciaEvento
+L2_EventSvc -up-> L1_GerenciaEvento
+L2_EventSvc -up-> L1_Moderacao
+L2_CheckinSvc -up-> L1_Checkin
+L2_NotifySvc -up-> L1_Venda
+L2_NotifySvc -up-> L1_Moderacao
+
+
+' -----------------------------
+' Componentes de Aplicação 
+' -----------------------------
+rectangle "Frontend Web (SPA)" as L3_Web <<$aComponent>> #Application
+rectangle "App Móvel (Validador)" as L3_Mobile <<$aComponent>> #Application
+rectangle "Microsserviços (Backend API)" as L3_Backend <<$aComponent>> #Application
+rectangle "Banco de Dados" as L3_DB <<$aComponent>> #Application
+rectangle "Gateway de Pagamento (Externo)" as L3_ExtPayment <<$aComponent>> #Application
+rectangle "Serviço de Email (Externo)" as L3_ExtEmail <<$aComponent>> #Application
+
+L3_Web -[hidden]right- L3_Mobile
+L3_Mobile -[hidden]right- L3_Backend
+L3_Backend -[hidden]right- L3_DB
+L3_DB -[hidden]right- L3_ExtPayment
+L3_ExtPayment -[hidden]right- L3_ExtEmail
+
+L3_Backend .up.|> L2_AuthSvc
+L3_Backend .up.|> L2_EventSvc
+L3_Backend .up.|> L2_PaymentSvc
+L3_Backend .up.|> L2_CheckinSvc
+L3_Backend .up.|> L2_NotifySvc
+
+L3_Web .up.|> L2_AuthSvc
+L3_Web .up.|> L2_EventSvc
+L3_Web .up.|> L2_PaymentSvc
+
+L3_Mobile .up.|> L2_AuthSvc
+L3_Mobile .up.|> L2_CheckinSvc
+
+L3_ExtPayment .up.|> L2_PaymentSvc
+L3_ExtEmail .up.|> L2_NotifySvc
+
+L3_Web ..> L3_Backend
+L3_Mobile ..> L3_Backend
+L3_Backend ..> L3_DB
+L3_Backend ..> L3_ExtPayment
+L3_Backend ..> L3_ExtEmail
+
+
+legend left
+Modelo de arquitetura para o sistema GoTicket.
+====
+<$bProcess> : processo de negócio
+<$aService> : serviço de aplicação
+<$aComponent> : componente de aplicação
+endlegend
+
+@enduml

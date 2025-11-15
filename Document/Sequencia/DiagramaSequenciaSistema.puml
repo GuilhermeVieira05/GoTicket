@@ -1,0 +1,49 @@
+@startuml GoTicketDiagram
+
+
+title Diagrama de Sequência do Sistema
+
+autonumber "<b>[00]</b>"
+
+actor Cliente
+actor Organizador
+participant "Frontend Web" as Frontend
+participant "App Móvel (Validador)" as MobileApp
+participant "Sistema GoTicket" as Sistema
+
+Cliente -> Frontend: Buscar e Selecionar Ingresso
+Frontend -> Sistema: comprarIngresso(dadosPagamento, tipoId)
+activate Sistema
+note right of Sistema: Validando pagamento, dados e estoque
+Sistema --> Frontend: (Compra Confirmada, Ingresso Gerado)
+deactivate Sistema
+Frontend --> Cliente: Ingresso emitido com sucesso
+
+opt Pagamento Recusado / Estoque Esgotado
+    Sistema -> Frontend: (Erro: Pagamento recusado ou Lote esgotado)
+    Frontend -> Cliente: (Informar erro e pedir para tentar de novo)
+end
+
+alt Organizador Cria um Novo Evento
+    Organizador -> Frontend: preencherFormularioEvento(dados)
+    Frontend -> Sistema: criarEvento(dados)
+    activate Sistema
+    note right of Sistema: Salva evento e o marca como 'Aguardando Aprovação'
+    Sistema --> Frontend: (Evento criado com sucesso)
+    deactivate Sistema
+    Frontend --> Organizador: (Evento aparece no painel)
+end
+
+loop Validação de Ingressos (Check-in na portaria)
+    Organizador -> MobileApp: escanearQRCode(ingressoId)
+    MobileApp -> Sistema: validarIngresso(ingressoId)
+    activate Sistema
+    Sistema --> MobileApp: (Status: VÁLIDO ou INVÁLIDO)
+    deactivate Sistema
+    MobileApp --> Organizador: (Exibe tela VERDE/VERMELHA)
+end
+
+Cliente ->> Sistema: (Solicita envio de ingresso por e-mail)
+note left: Confirmação de compra enviada
+Sistema -->> Cliente: (E-mail de confirmação)
+@enduml

@@ -1,0 +1,50 @@
+@startuml GoTicketDiagram
+
+title Diagrama de Componentes - GoTicket (Foco no Sistema)
+
+skinparam component {
+  BackgroundColor LightBlue
+  BorderColor Business
+  ArrowColor Blue
+}
+skinparam database {
+  BackgroundColor LightGray
+}
+
+package "Sistema GoTicket" {
+  component "[Frontend Web (SPA)]" as Web
+  component "[App Móvel (Validador)]" as Mobile
+  component "[API Gateway]" as Gateway
+  
+  component "[Serviço de Usuários]" as UserSvc <<Serviço>>
+  component "[Serviço de Eventos]" as EventSvc <<Serviço>>
+  component "[Serviço de Pagamentos]" as PaymentSvc <<Serviço>>
+  component "[Serviço de Notificações]" as NotifySvc <<Serviço>>
+  
+  database "Banco de Dados" as DB
+}
+
+package "Sistemas Externos" {
+  component "[Gateway de Pagamento]" as ExtPayment
+  component "[Serviço de Email]" as ExtEmail
+}
+
+Web --> Gateway
+Mobile --> Gateway
+
+Gateway --> UserSvc
+Gateway --> EventSvc
+Gateway --> PaymentSvc
+
+EventSvc ..> NotifySvc : (notifica evento)
+PaymentSvc ..> NotifySvc : (notifica compra)
+
+UserSvc ..> DB
+EventSvc ..> DB
+PaymentSvc ..> DB
+NotifySvc ..> DB
+
+PaymentSvc ..> ExtPayment
+NotifySvc ..> ExtEmail
+
+@enduml

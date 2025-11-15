@@ -1,0 +1,57 @@
+@startuml GoTicketDiagram
+
+title Diagrama de Implantação - GoTicket
+
+skinparam node {
+  BackgroundColor LightYellow
+  BorderColor Business
+}
+skinparam artifact {
+  BackgroundColor LightCyan
+}
+skinparam database {
+  BackgroundColor LightGray
+}
+
+node "Dispositivo do Cliente" as ClienteDevice {
+  artifact "Frontend Web (em execução)"
+}
+node "Dispositivo do Organizador" as OrgDevice {
+  artifact "App Móvel (Validador)"
+}
+
+node "Sistema Externo:\nGateway de Pagamento" as ExtPayment
+node "Sistema Externo:\nServiço de Email" as ExtEmail
+
+
+node "Provedor de Cloud" as Cloud {
+  
+  node "Camada de Borda" {
+    node "Load Balancer" as LB
+    node "Servidor Web (CDN)" as CDN {
+      artifact "[Frontend Web (Código)]"
+    }
+  }
+
+  node "Cluster de Aplicação" as Cluster {
+    artifact "[API Gateway]"
+    artifact "[Serviço de Usuários]"
+    artifact "[Serviço de Eventos]"
+    artifact "[Serviço de Pagamentos]"
+    artifact "[Serviço de Notificações]"
+  }
+
+  database "Banco de Dados" as DB {
+    artifact "[Schema GoTicket]"
+  }
+}
+
+ClienteDevice --> LB : (HTTPS)
+OrgDevice --> LB : (HTTPS)
+LB --> CDN
+LB --> Cluster
+Cluster --> DB
+Cluster --> ExtPayment : (API)
+Cluster --> ExtEmail : (API/SMTP)
+
+@enduml

@@ -46,7 +46,7 @@ Os arquivos de documentação em PDF e os códigos-fonte dos diagramas (`.puml`)
 
 1.  Clone o repositório:
     ```bash
-    git clone [https://github.com/GuilhermeVieira05/GoTicket.git](https://github.com/GuilhermeVieira05/GoTicket.git)
+    git clone https://github.com/GuilhermeVieira05/GoTicket.git
     ```
 
 2.  Acesse a pasta do projeto:

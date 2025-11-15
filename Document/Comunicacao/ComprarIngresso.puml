@@ -1,0 +1,21 @@
+@startuml GoTicketDiagram
+
+title UC-04: Comprar Ingresso
+
+actor Cliente
+
+Cliente -> "Frontend" : 1: selecionaIngresso()
+"Frontend" -> "API Gateway" : 2: POST /pedidos
+"API Gateway" -> "Serviço de Pagamentos" : 3: criarPedido()
+"Serviço de Pagamentos" -> "Serviço de Eventos" : 4: reservarEstoque()
+"Serviço de Eventos" --> "Serviço de Pagamentos" : 5: (Estoque OK)
+"Serviço de Pagamentos" -> "Gateway de Pagamento" : 6: processarPagamento()
+"Gateway de Pagamento" --> "Serviço de Pagamentos" : 7: (Pagamento Aprovado)
+"Serviço de Pagamentos" -> "Serviço de Pagamentos" : 8: (Salva Pedido no DB)
+"Serviço de Pagamentos" -> "Serviço de Notificações" : 9: enviarConfirmacaoEmail()
+"Serviço de Notificações" --> "Serviço de Pagamentos" : 10: (Email enviado)
+"Serviço de Pagamentos" --> "API Gateway" : 11: (Pedido 201: Criado)
+"API Gateway" --> "Frontend" : 12: (Compra Confirmada)
+"Frontend" --> Cliente : 13: exibeIngresso()
+
+@enduml

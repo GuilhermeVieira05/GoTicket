@@ -1,0 +1,47 @@
+@startuml GoTicketDiagram
+
+title UC-04: Comprar Ingresso
+
+actor Cliente
+participant "Frontend" as Frontend
+participant "API Gateway" as Gateway
+participant "Serviço de Pagamentos" as PagamentosSvc
+participant "Serviço de Eventos" as EventosSvc
+participant "Gateway de Pagamento" as PagamentoExterno
+participant "Serviço de Notificações" as NotifySvc
+
+Cliente -> Frontend: selecionaIngresso(tipoId, qtd)
+activate Frontend
+
+Frontend -> Gateway: POST /pedidos
+activate Gateway
+
+Gateway -> PagamentosSvc: criarPedido(dados)
+activate PagamentosSvc
+
+PagamentosSvc -> EventosSvc: reservarEstoque(tipoId, qtd)
+activate EventosSvc
+EventosSvc --> PagamentosSvc: (Estoque OK)
+deactivate EventosSvc
+
+PagamentosSvc -> PagamentoExterno: processarPagamento(valor, dadosCartao)
+activate PagamentoExterno
+PagamentoExterno --> PagamentosSvc: (Pagamento Aprovado)
+deactivate PagamentoExterno
+
+PagamentosSvc -> PagamentosSvc: (Salva Pedido e Ingressos no DB)
+PagamentosSvc -> NotifySvc: enviarConfirmacaoEmail(pedido)
+activate NotifySvc
+NotifySvc --> PagamentosSvc: (Email enviado)
+deactivate NotifySvc
+
+PagamentosSvc --> Gateway: (Pedido 201: Criado)
+deactivate PagamentosSvc
+
+Gateway --> Frontend: (Compra Confirmada)
+deactivate Gateway
+
+Frontend --> Cliente: exibeIngresso()
+deactivate Frontend
+
+@enduml

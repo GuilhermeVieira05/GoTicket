@@ -1,0 +1,47 @@
+@startuml GoTicket Diagram
+
+title UC-11: Validar Ingresso (Check-in)
+
+actor Organizador
+participant "App Móvel" as MobileApp
+participant "API Gateway" as Gateway
+participant "Serviço de Eventos" as EventosSvc
+
+Organizador -> MobileApp: abreTelaDeCheckin()
+MobileApp -> Organizador: (Exibe câmera)
+
+Organizador -> MobileApp: escaneiaQRCode(ingressoId)
+activate MobileApp
+
+MobileApp -> Gateway: POST /checkin/{ingressoId}
+activate Gateway
+
+Gateway -> EventosSvc: validarIngresso(ingressoId)
+activate EventosSvc
+
+' O serviço precisa verificar o status do ingresso no DB
+EventosSvc -> EventosSvc: (Busca ingresso no DB)
+
+alt Ingresso Válido (Status == 'PAGO')
+    EventosSvc -> EventosSvc: (Atualiza status para 'UTILIZADO')
+    EventosSvc --> Gateway: (200: Check-in OK)
+else Ingresso Inválido (Status == 'UTILIZADO' ou 'CANCELADO')
+    EventosSvc --> Gateway: (409: Ingresso já utilizado)
+else Ingresso não encontrado
+    EventosSvc --> Gateway: (404: Ingresso não encontrado)
+end
+
+deactivate EventosSvc
+
+Gateway --> MobileApp: (Resposta da API)
+deactivate Gateway
+
+alt Resposta de Sucesso
+    MobileApp --> Organizador: (Exibe tela VERDE)
+else Resposta de Falha
+    MobileApp --> Organizador: (Exibe tela VERMELHA)
+end
+
+deactivate MobileApp
+
+@enduml

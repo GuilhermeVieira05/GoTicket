@@ -1,0 +1,118 @@
+@startuml GoTicketDiagram
+
+title Diagrama de Classes - GoTicket
+
+skinparam class {
+  BackgroundColor LightBlue
+  ArrowColor Blue
+  BorderColor Business
+  BackgroundColor<<Enum>> LightYellow
+}
+skinparam note {
+  BackgroundColor LightGray
+}
+
+class Usuario {
+  - id: UUID
+  - nome: String
+  - email: String
+  - senhaHash: String
+  - role: RoleUsuario
+  + fazerLogin()
+  + criarConta()
+}
+
+class Evento {
+  - id: UUID
+  - nome: String
+  - descricao: String
+  - local: String
+  - data: DateTime
+  - status: StatusEvento
+  + publicarEvento()
+  + cancelarEvento()
+}
+
+class TipoIngresso {
+  - id: UUID
+  - nome: String (ex: "VIP", "Pista - Lote 1")
+  - preco: double
+  - quantidadeTotal: int
+  - quantidadeDisponivel: int
+  + atualizarQuantidade()
+}
+
+class Pedido {
+  - id: UUID
+  - dataCompra: DateTime
+  - status: StatusPedido
+  - total: double
+  + calcularTotal()
+  + confirmarPagamento()
+}
+
+class Ingresso {
+  - id: UUID (pode ser o QR Code)
+  - nomeComprador: String
+  - precoPago: double
+  - status: StatusIngresso
+  + validar()
+  + transferir()
+}
+
+
+enum RoleUsuario <<Enum>> {
+  CLIENTE
+  ORGANIZADOR
+  ADMIN
+}
+
+enum StatusEvento <<Enum>> {
+  RASCUNHO
+  PUBLICADO
+  ENCERRADO
+  CANCELADO
+}
+
+enum StatusPedido <<Enum>> {
+  CARRINHO
+  AGUARDANDO_PAGAMENTO
+  PAGO
+  CANCELADO
+}
+
+enum StatusIngresso <<Enum>> {
+  AGUARDANDO_PAGAMENTO
+  PAGO (Disponível para uso)
+  UTILIZADO
+  CANCELADO
+}
+
+Usuario "1" -- "0..*" Evento : (Gerencia >)
+
+Usuario "1" -- "0..*" Pedido : (Faz >)
+
+Evento "1" *-- "1..*" TipoIngresso : (Contém)
+
+Pedido "1" *-- "1..*" Ingresso : (Contém)
+
+TipoIngresso "1" -- "0..*" Ingresso : (É o tipo de >)
+
+Usuario ..> RoleUsuario
+Evento ..> StatusEvento
+Pedido ..> StatusPedido
+Ingresso ..> StatusIngresso
+
+note right of Evento
+  Um Evento pertence
+  a 1 Usuário
+  (Organizador)
+end note
+
+note left of Pedido
+  Um Pedido pertence
+  a 1 Usuário
+  (Cliente)
+end note
+
+@enduml

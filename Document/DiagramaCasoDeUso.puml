@@ -1,0 +1,67 @@
+@startuml GoTicketDiagram
+
+title Diagrama de Casos de Uso - GoTicket
+
+left to right direction
+skinparam packageStyle rectangle
+
+' Atores
+actor Cliente
+actor Organizador
+actor Administrador
+
+' Casos de Uso
+rectangle "GoTicket" {
+  
+  package "Casos de Uso (Cliente)" {
+    (UC-01: Gerenciar Conta)
+    (UC-02: Buscar Eventos)
+    (UC-03: Visualizar Detalhes do Evento)
+    (UC-04: Comprar Ingresso)
+    (UC-05: Visualizar Meus Ingressos)
+    (UC-06: Transferir Ingresso)
+  }
+
+  package "Casos de Uso (Organizador)" {
+    (UC-07: Gerenciar Perfil)
+    (UC-08: Criar Novo Evento)
+    (UC-09: Gerenciar Eventos Criados)
+    (UC-10: Configurar Lotes de Ingressos)
+    (UC-11: Validar Ingresso)
+    (UC-12: Visualizar Relatório de Vendas)
+  }
+
+  package "Casos de Uso (Admin)" {
+    (UC-13: Gerenciar Contas de Usuários)
+    (UC-14: Moderar Eventos)
+    (UC-15: Gerenciar Taxas da Plataforma)
+    (UC-16: Gerar Relatórios do Sistema)
+  }
+}
+
+' Ligações
+Cliente -- (UC-01: Gerenciar Conta)
+Cliente -- (UC-02: Buscar Eventos)
+Cliente -- (UC-03: Visualizar Detalhes do Evento)
+Cliente -- (UC-04: Comprar Ingresso)
+Cliente -- (UC-05: Visualizar Meus Ingressos)
+Cliente -- (UC-06: Transferir Ingresso)
+
+Organizador -- (UC-07: Gerenciar Perfil)
+Organizador -- (UC-08: Criar Novo Evento)
+Organizador -- (UC-09: Gerenciar Eventos Criados)
+Organizador -- (UC-10: Configurar Lotes de Ingressos)
+Organizador -- (UC-11: Validar Ingresso)
+Organizador -- (UC-12: Visualizar Relatório de Vendas)
+
+Administrador -- (UC-13: Gerenciar Contas de Usuários)
+Administrador -- (UC-14: Moderar Eventos)
+Administrador -- (UC-15: Gerenciar Taxas da Plataforma)
+Administrador -- (UC-16: Gerar Relatórios do Sistema)
+
+' Relações 
+(UC-14: Moderar Eventos) .> (UC-08: Criar Novo Evento) : <<extends>>
+(UC-13: Gerenciar Contas de Usuários) ..> (UC-01: Gerenciar Conta) : <<include>>
+(UC-13: Gerenciar Contas de Usuários) ..> (UC-07: Gerenciar Perfil) : <<include>>
+
+@enduml

@@ -1,0 +1,37 @@
+@startuml GoTicketDiagram
+
+title UC-08: Criar Novo Evento
+
+actor Organizador
+participant "Frontend" as Frontend
+participant "API Gateway" as Gateway
+participant "Serviço de Eventos" as EventosSvc
+participant "Serviço de Notificações" as NotifySvc
+
+Organizador -> Frontend: preencheFormularioEvento()
+Organizador -> Frontend: clicaSalvar()
+activate Frontend
+
+Frontend -> Gateway: POST /eventos
+activate Gateway
+
+Gateway -> EventosSvc: criarEvento(dados)
+activate EventosSvc
+
+EventosSvc -> EventosSvc: (Salva Evento no DB com status 'AGUARDANDO_APROVACAO')
+
+EventosSvc -> NotifySvc: notificarAdminNovoEvento(eventoId)
+activate NotifySvc
+NotifySvc --> EventosSvc
+deactivate NotifySvc
+
+EventosSvc --> Gateway: (Evento 201: Criado)
+deactivate EventosSvc
+
+Gateway --> Frontend: (Evento Criado com Sucesso)
+deactivate Gateway
+
+Frontend --> Organizador: exibePainelDoEvento()
+deactivate Frontend
+
+@enduml

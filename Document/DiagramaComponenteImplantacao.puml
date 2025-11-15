@@ -1,0 +1,77 @@
+@startuml GoTicketDiagram
+
+title Diagrama de Componentes e Implantação - GoTicket
+
+skinparam node {
+  BackgroundColor LightYellow
+  BorderColor Business
+}
+skinparam component {
+  BackgroundColor<<Servico>> LightBlue
+  BorderColor Business
+  ArrowColor Blue
+}
+skinparam database {
+  BackgroundColor LightGray
+}
+skinparam package {
+  BorderColor LightGray
+  BackgroundColor LightYellow
+}
+
+node "Dispositivo do Cliente\n(Navegador Web)" as ClienteDevice {
+  component "Frontend Web" as WebAppInstance
+}
+node "Dispositivo do Organizador" as OrgDevice {
+  component "[App Móvel (Validador)]" as MobileApp
+}
+
+node "Provedor de Cloud" as Cloud {
+
+  package "Camada de Borda" {
+    node "Load Balancer" as LB
+    node "Servidor Web (CDN)" as WebServer {
+       component "[Frontend Web (Código)]" as WebAppCode
+    }
+  }
+
+  node "Cluster de Aplicação" as AppCluster {
+    component "[API Gateway]" as Gateway
+    component "[Serviço de Usuários]" as UserSvc <<Servico>>
+    component "[Serviço de Eventos]" as EventSvc <<Servico>>
+    component "[Serviço de Pagamentos]" as PaymentSvc <<Servico>>
+    component "[Serviço de Notificações]" as NotifySvc <<Servico>>
+  }
+
+  database "Banco de Dados" as DB
+}
+
+node "Sistema Externo:\nGateway de Pagamento" as PagamentoExterno
+node "Sistema Externo:\nServiço de Email" as EmailExterno
+
+
+LB <-down- ClienteDevice : (HTTPS - Carrega o SPA)
+LB -down-> WebServer
+WebServer ..> WebAppInstance : (código é carregado)
+
+WebAppInstance -down-> LB : (Chamadas de API)
+
+MobileApp -left-> LB : (Chamadas de API)
+
+LB -down-> Gateway
+
+Gateway -down-> UserSvc
+Gateway -down-> EventSvc
+Gateway -down-> PaymentSvc
+
+PaymentSvc ..> NotifySvc : (notifica compra)
+EventSvc ..> NotifySvc : (notifica evento)
+
+UserSvc ..> DB
+EventSvc ..> DB
+PaymentSvc ..> DB
+
+PaymentSvc ..> PagamentoExterno
+NotifySvc ..> EmailExterno
+
+@enduml

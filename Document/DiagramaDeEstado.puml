@@ -1,0 +1,61 @@
+@startuml GoTicketDiagram
+
+skinparam state {
+  BackgroundColor<<Aguardando>> LightYellow
+  BackgroundColor<<Vendido>> MediumSeaGreen
+  BackgroundColor<<Utilizado>> OliveDrab
+  BackgroundColor<<Cancelado>> LightPink
+  BackgroundColor<<Expirado>> LightGray
+  BorderColor Business
+  ArrowColor Blue
+}
+
+[*] --> Disponivel
+
+
+state "Disponivel" as Disponivel
+Disponivel : O ingresso esta no lote
+Disponivel : e pronto para ser comprado.
+
+state "Reservado" as Reservado
+Reservado : O ingresso esta no carrinho
+Reservado : de um cliente (temporario).
+
+state "AguardandoPagamento" as AguardandoPagamento <<Aguardando>>
+AguardandoPagamento : Cliente finalizou a compra,
+AguardandoPagamento : aguardando confirmacao do pagamento.
+
+state "Vendido" as Vendido <<Vendido>>
+Vendido : O pagamento foi confirmado.
+Vendido : O ingresso esta com o cliente.
+
+state "Utilizado" as Utilizado <<Utilizado>>
+Utilizado : O cliente fez o check-in.
+Utilizado : O ingresso foi validado na entrada.
+
+state "Cancelado" as Cancelado <<Cancelado>>
+Cancelado : A compra foi cancelada
+Cancelado : (pelo cliente, admin ou evento).
+
+state "Expirado" as Expirado <<Expirado>>
+Expirado : O pagamento nao foi feito a tempo
+Expirado : ou o evento passou sem uso.
+
+
+Disponivel -right-> Reservado : Cliente adiciona ao carrinho
+Reservado -right-> AguardandoPagamento : Cliente inicia checkout
+AguardandoPagamento -down-> Vendido : Pagamento Aprovado
+
+Vendido -down-> Utilizado : [UC-11] Organizador valida ingresso
+Utilizado --> [*]
+
+Reservado -up-> Disponivel : Cliente remove / Carrinho expira
+AguardandoPagamento -left-> Disponivel : Pagamento Recusado
+AguardandoPagamento -down-> Expirado : Tempo de pagamento esgota
+Vendido -right-> Cancelado : Compra/Evento e cancelado
+Vendido -down-> Expirado : Evento passa (sem uso)
+
+Cancelado --> [*]
+Expirado --> [*]
+
+@enduml

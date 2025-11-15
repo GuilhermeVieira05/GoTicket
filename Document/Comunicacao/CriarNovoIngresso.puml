@@ -1,0 +1,18 @@
+@startuml GoTicketDiagram
+
+title UC-08: Criar Novo Evento
+
+actor Organizador
+
+Organizador -> "Frontend" : 1: preencheFormulario()
+Organizador -> "Frontend" : 2: clicaSalvar()
+"Frontend" -> "API Gateway" : 3: POST /eventos
+"API Gateway" -> "Serviço de Eventos" : 4: criarEvento()
+"Serviço de Eventos" -> "Serviço de Eventos" : 5: (Salva Evento no DB)
+"Serviço de Eventos" -> "Serviço de Notificações" : 6: notificarAdminNovoEvento()
+"Serviço de Notificações" --> "Serviço de Eventos" : 7: (Notificação OK)
+"Serviço de Eventos" --> "API Gateway" : 8: (Evento 201: Criado)
+"API Gateway" --> "Frontend" : 9: (Evento Criado com Sucesso)
+"Frontend" --> Organizador : 10: exibePainelDoEvento()
+
+@enduml

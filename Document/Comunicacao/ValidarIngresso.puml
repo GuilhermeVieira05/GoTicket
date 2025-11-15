@@ -1,0 +1,17 @@
+@startuml GoTicketDiagram
+
+title UC-11: Validar Ingresso (Check-in)
+
+actor Organizador
+
+Organizador -> "App Móvel" : 1: abreTelaDeCheckin()
+"App Móvel" --> Organizador : 2: (Exibe câmera)
+Organizador -> "App Móvel" : 3: escaneiaQRCode()
+"App Móvel" -> "API Gateway" : 4: POST /checkin
+"API Gateway" -> "Serviço de Eventos" : 5: validarIngresso()
+"Serviço de Eventos" -> "Serviço de Eventos" : 6: (Verifica/Atualiza status no DB)
+"Serviço de Eventos" --> "API Gateway" : 7: (Resposta: OK ou Erro)
+"API Gateway" --> "App Móvel" : 8: (Resposta da API)
+"App Móvel" --> Organizador : 9: (Exibe tela VERDE/VERMELHA)
+
+@enduml

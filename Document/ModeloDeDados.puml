@@ -1,0 +1,92 @@
+@startuml GoTicketDiagram
+
+title Modelo de Dados (Esquema de Banco de Dados) - GoTicket
+
+skinparam linetype ortho ' Deixa as linhas retas (ortogonais)
+skinparam class {
+  BackgroundColor LightBlue
+  ArrowColor Blue
+  BorderColor Business
+}
+
+' --- Entidades (Tabelas) ---
+
+entity "usuarios" {
+  + **id (PK)** : uuid
+  --
+  * nome : varchar(255) [not null]
+  * email : varchar(255) [unique, not null]
+  * senha_hash : varchar(255) [not null]
+  * role : varchar(50) [not null]
+  ..
+  * created_at : timestamp
+}
+
+entity "eventos" {
+  + **id (PK)** : uuid
+  --
+  * **organizador_id (FK)** : uuid [not null]
+  --
+  * nome : varchar(255) [not null]
+  * descricao : text
+  * local : varchar(255)
+  * data : timestamp [not null]
+  * status : varchar(50) [not null]
+  ..
+  * created_at : timestamp
+}
+
+entity "tipos_ingresso" {
+  + **id (PK)** : uuid
+  --
+  * **evento_id (FK)** : uuid [not null]
+  --
+  * nome : varchar(100) [not null]
+  * preco : decimal(10, 2) [not null]
+  * quantidade_total : integer [not null]
+  * quantidade_disponivel : integer [not null]
+  ..
+  * created_at : timestamp
+}
+
+entity "pedidos" {
+  + **id (PK)** : uuid
+  --
+  * **cliente_id (FK)** : uuid [not null]
+  --
+  * status : varchar(50) [not null]
+  * total : decimal(10, 2) [not null]
+  ..
+  * data_compra : timestamp
+}
+
+entity "ingressos" {
+  + **id (PK)** : uuid
+  --
+  * **pedido_id (FK)** : uuid [not null]
+  * **tipo_ingresso_id (FK)** : uuid [not null]
+  --
+  * preco_pago : decimal(10, 2) [not null]
+  * status : varchar(50) [not null]
+  ..
+  * created_at : timestamp
+}
+
+' --- Relacionamentos (Chaves Estrangeiras) ---
+
+' Um Usuário (Organizador) gerencia muitos Eventos
+usuarios ||--o{ eventos : "gerencia"
+
+' Um Usuário (Cliente) faz muitos Pedidos
+usuarios ||--o{ pedidos : "faz"
+
+' Um Evento contém muitos Tipos de Ingresso (Lotes)
+eventos ||--|{ tipos_ingresso : "contém"
+
+' Um Pedido contém muitos Ingressos
+pedidos ||--|{ ingressos : "contém"
+
+' Um Tipo de Ingresso (Lote) é a base para muitos Ingressos
+tipos_ingresso ||--o{ ingressos : "é o tipo de"
+
+@enduml
